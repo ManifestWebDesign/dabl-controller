@@ -1,0 +1,35 @@
+{
+	"name": "dabl/controller",
+	"description": "Simple MVC controller",
+	"license": "MIT",
+	"keywords": ["dabl", "mvc", "controller", "routing", "routes"],
+	"authors": [
+		{
+			"name": "Manifest Web Design",
+			"email": "dan@manifestwebdesign.com"
+		}
+	],
+	"require": {
+		"dabl/view": "1.0.*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "4.8.*"
+	},
+	"autoload": {
+		"files": [
+			"src/helpers/file_not_found.php",
+			"src/helpers/get_request_headers.php",
+			"src/helpers/h.php",
+			"src/helpers/print_r2.php",
+			"src/helpers/object_to_array.php",
+			"src/helpers/json_encode_all.php",
+			"src/helpers/page_moved.php",
+			"src/helpers/redirect.php",
+			"src/helpers/site_url.php",
+			"src/helpers/xml_encode_all.php"
+		],
+		"psr-4": {
+			"Dabl\\Controller\\": "src"
+		}
+	}
+}
