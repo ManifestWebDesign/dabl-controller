@@ -18,29 +18,33 @@
  * @return string
  * @author Dan Blaisdell
  */
-function site_url($url = '', $version = false) {
-	if (is_array($url)) {
-		$url = implode('/', $url);
-	}
+if (!function_exists('site_url')) {
 
-	if (
-		false !== strpos($url, ':')
-		|| 0 === strpos($url, '#')
-		|| 0 === strpos($url, '//')
-	) {
-		return $url;
-	}
-
-	if ($version) {
-		$path = PUBLIC_DIR . $url;
-		if (!is_file($path)) {
-			file_not_found($url);
+	function site_url($url = '', $version = false) {
+		if (is_array($url)) {
+			$url = implode('/', $url);
 		}
-		$char = (strpos($url, '?') === false) ? '?' : '&';
-		$url .= $char . 'v=' . filemtime($path);
+
+		if (
+			false !== strpos($url, ':')
+			|| 0 === strpos($url, '#')
+			|| 0 === strpos($url, '//')
+		) {
+			return $url;
+		}
+
+		if ($version) {
+			$path = PUBLIC_DIR . $url;
+			if (!is_file($path)) {
+				file_not_found($url);
+			}
+			$char = (strpos($url, '?') === false) ? '?' : '&';
+			$url .= $char . 'v=' . filemtime($path);
+		}
+
+		$url = trim($url, '/');
+
+		return BASE_URL . $url;
 	}
 
-	$url = trim($url, '/');
-
-	return BASE_URL . $url;
 }

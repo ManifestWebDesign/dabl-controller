@@ -16,11 +16,15 @@
  * properties directly but only through an Iterator interface are also encoded
  * correctly.
  */
-function json_encode_all(&$param) {
+if (!function_exists('json_encode_all')) {
 
-	if (is_object($param) || is_array($param)) {
-		return json_encode(object_to_array($param));
+	function json_encode_all(&$param) {
+
+		if (is_object($param) || is_array($param)) {
+			return json_encode(object_to_array($param));
+		}
+
+		return json_encode($param);
 	}
 
-	return json_encode($param);
 }

@@ -16,36 +16,40 @@
  *
  * @return array
  */
-function object_to_array($var, $loop_exclude = array()) {
-	if (is_object($var)) {
-		if ($var instanceof JsonSerializable) {
-			return $var->jsonSerialize();
+if (!function_exists('object_to_array')) {
+
+	function object_to_array($var, $loop_exclude = array()) {
+		if (is_object($var)) {
+			if ($var instanceof JsonSerializable) {
+				return $var->jsonSerialize();
+			}
+
+			if (in_array($var, $loop_exclude, true)) {
+				return '*RECURSION*';
+			}
+			$loop_exclude[] = $var;
+
+			if ($var instanceof ArrayObject) {
+				$var = $var->getArrayCopy();
+			} elseif (method_exists($var, 'toArray')) {
+				$var = $var->toArray();
+			} elseif ($var instanceof Traversable) {
+				$var = iterator_to_array($var, true);
+			} else {
+				$var = get_object_vars($var);
+			}
+		} elseif (!is_array($var)) {
+			throw new InvalidArgumentException('object_to_array can only convert arrays and objects');
 		}
 
-		if (in_array($var, $loop_exclude, true)) {
-			return '*RECURSION*';
+		// loop over elements/properties
+		foreach ($var as &$value) {
+			// recursively convert objects
+			if (is_object($value) || is_array($value)) {
+				$value = object_to_array($value, $loop_exclude);
+			}
 		}
-		$loop_exclude[] = $var;
-
-		if ($var instanceof ArrayObject) {
-			$var = $var->getArrayCopy();
-		} elseif (method_exists($var, 'toArray')) {
-			$var = $var->toArray();
-		} elseif ($var instanceof Traversable) {
-			$var = iterator_to_array($var, true);
-		} else {
-			$var = get_object_vars($var);
-		}
-	} elseif (!is_array($var)) {
-		throw new InvalidArgumentException('object_to_array can only convert arrays and objects');
+		return $var;
 	}
 
-	// loop over elements/properties
-	foreach ($var as &$value) {
-		// recursively convert objects
-		if (is_object($value) || is_array($value)) {
-			$value = object_to_array($value, $loop_exclude);
-		}
-	}
-	return $var;
 }

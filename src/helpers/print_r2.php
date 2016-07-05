@@ -14,10 +14,14 @@
  * @param bool $return
  * @return string
  */
-function print_r2($array, $return = false) {
-	$string = '<pre>' . htmlentities(print_r($array, true)) . '</pre>';
-	if ($return) {
-		return $string;
+if (!function_exists('print_r2')) {
+
+	function print_r2($array, $return = false) {
+		$string = '<pre>' . htmlentities(print_r($array, true)) . '</pre>';
+		if ($return) {
+			return $string;
+		}
+		echo $string;
 	}
-	echo $string;
+
 }

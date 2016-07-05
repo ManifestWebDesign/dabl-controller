@@ -11,10 +11,14 @@ use Dabl\Controller\Exception\FileNotFoundException;
 /**
  * @param string $file
  */
-function file_not_found($file) {
-	if (!headers_sent()) {
-		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+if (!function_exists('file_not_found')) {
+
+	function file_not_found($file) {
+		if (!headers_sent()) {
+			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+		}
+
+		throw new FileNotFoundException("$file not found");
 	}
 
-	throw new FileNotFoundException("$file not found");
 }
