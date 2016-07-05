@@ -6,6 +6,7 @@
  * @author Manifest Web Design
  * @license    MIT License
  */
+use Dabl\Controller\Exception\FileNotFoundException;
 
 /**
  * @param string $file
