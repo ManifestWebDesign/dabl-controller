@@ -102,6 +102,13 @@ class ControllerRoute {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function __toString() {
+		return $this->getRoute() . '';
+	}
+
+	/**
 	 * @param string|array $route
 	 * @param array $headers
 	 * @param array $request_params
