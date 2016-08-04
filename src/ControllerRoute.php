@@ -84,9 +84,7 @@ class ControllerRoute {
 	 * @param array $request_params
 	 */
 	function __construct($route = '', array $headers = array(), array $request_params = array()) {
-		if ($route !== null) {
-			$this->setRoute($route);
-		}
+		$this->setRoute($route . '');
 
 		if (!empty($headers)) {
 			$this->setHeaders($headers);
