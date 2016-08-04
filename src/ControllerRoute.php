@@ -84,9 +84,18 @@ class ControllerRoute {
 	 * @param array $request_params
 	 */
 	function __construct($route = '', array $headers = array(), array $request_params = array()) {
-		$this->setRoute($route);
-		$this->setHeaders($headers);
-		$this->setRequestParams($request_params);
+		if ($route) {
+			$this->setRoute($route);
+		}
+
+		if (!empty($headers)) {
+			$this->setHeaders($headers);
+		}
+
+		if (!empty($request_params)) {
+			$this->setRequestParams($request_params);
+		}
+
 		if ($this->httpVerb === null) {
 			$this->httpVerb = 'GET';
 		}
@@ -113,6 +122,11 @@ class ControllerRoute {
 	 * @param string|array $route
 	 */
 	function setRoute($route) {
+		$this->controllerClass = null;
+		$this->controllerDir = null;
+		$this->viewDir = null;
+		$this->action = null;
+		$this->params = array();
 
 		if (is_array($route)) {
 			$this->route = implode('/', $route);
@@ -150,12 +164,18 @@ class ControllerRoute {
 		$this->segments = $segments;
 
 		// directory where controllers are found
-		$c_dir = null;
-		$view_prefix = '';
-		$view_dir = '';
 		$found = false;
+		$deepest_dir = '';
+		$deepest_level = 0;
+		$deepest_view_prefix = '';
+		$deepest_segments = array();
 
 		foreach (Controller::getDirectories() as $directory) {
+			$view_prefix = '';
+			$view_dir = '';
+			$level = 1;
+			$segments = $this->segments;
+
 			$c_dir = $directory;
 			foreach ($segments as $key => &$segment) {
 				$c_class = ucwords(str_replace(array('_', '-'), ' ', $segment));
@@ -175,35 +195,38 @@ class ControllerRoute {
 				// check if the segment matches directory name
 				$t_dir = $c_dir . $segment . '/';
 				if (is_dir($t_dir)) {
+					++$level;
 					unset($segments[$key]);
 					$c_dir = $t_dir;
 					$view_prefix .= $segment . '/';
-					continue;
+				} else {
+					break;
 				}
+			}
+
+			if ($found) {
+				$this->viewDir = $view_prefix . $view_dir . '/';
+				$this->action = array_shift($segments);
+				$this->params = $segments;
 				break;
+			} elseif ($level > $deepest_level) {
+				// fallback check if default index exists in directory
+				if (is_file($c_dir . 'IndexController.php')) {
+					$deepest_dir = $c_dir;
+					$deepest_level = $level;
+					$deepest_view_prefix = $view_prefix;
+					$deepest_segments = $segments;
+				}
 			}
 		}
 
-		if (!$found) {
-			//fallback check if default index exists in directory
-			$alternate_c_class = ucwords('index') . 'Controller';
-			$alternate_c_class_file = $c_dir . $alternate_c_class . '.php';
-
-			if (is_file($alternate_c_class_file)) {
-				$this->controllerClass = $alternate_c_class;
-				$this->controllerDir = $c_dir;
-				$found = true;
-			}
-			if (!$found) {
-				$this->controllerClass = '';
-				$this->controllerDir = '';
-				return;
-			}
+		if (!$found && $deepest_dir) {
+			$this->controllerClass = 'IndexController';
+			$this->controllerDir = $deepest_dir;
+			$this->viewDir = $deepest_view_prefix;
+			$this->action = array_shift($deepest_segments);
+			$this->params = $deepest_segments;
 		}
-
-		$this->viewDir = $view_dir ? $view_prefix . $view_dir . '/' : $view_prefix;
-		$this->action = array_shift($segments);
-		$this->params = $segments;
 	}
 
 	/**

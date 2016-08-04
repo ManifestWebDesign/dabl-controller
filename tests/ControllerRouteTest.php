@@ -18,6 +18,7 @@ class ControllerRouteTest extends PHPUnit_Framework_TestCase {
 	 */
 	protected function setUp() {
 		Controller::addDirectory(__DIR__ . '/controllers');
+		Controller::addDirectory(__DIR__ . '/other-controllers');
 		$this->route = new ControllerRoute;
 	}
 
@@ -26,7 +27,7 @@ class ControllerRouteTest extends PHPUnit_Framework_TestCase {
 	 * This method is called after a test is executed.
 	 */
 	protected function tearDown() {
-
+		Controller::clearDirectories();
 	}
 
 	/**
@@ -38,6 +39,43 @@ class ControllerRouteTest extends PHPUnit_Framework_TestCase {
 		$this->markTestIncomplete(
 				'This test has not been implemented yet.'
 		);
+	}
+
+	/**
+	 * @covers ControllerRoute::setRoute
+	 */
+	public function testSetRouteMultipleDirectories() {
+		$this->route = new ControllerRoute;
+		$this->route->setRoute('');
+		$this->assertEquals('IndexController', $this->route->getControllerClass());
+		$this->assertEquals('', $this->route->getViewDir());
+		$this->assertEquals('', $this->route->getAction());
+
+		$this->route = new ControllerRoute;
+		$this->route->setRoute('home.json?abcd');
+		$this->assertEquals('HomeController', $this->route->getControllerClass());
+		$this->assertEquals('home/', $this->route->getViewDir());
+		$this->assertEquals('', $this->route->getAction());
+
+		$this->route = new ControllerRoute;
+		$this->route->setRoute('index.html');
+		$this->assertEquals('IndexController', $this->route->getControllerClass());
+		$this->assertEquals('index/', $this->route->getViewDir());
+		$this->assertEquals('', $this->route->getAction());
+
+		$this->route = new ControllerRoute;
+		$this->route->setRoute('foo/bar');
+		$this->assertEquals('BarController', $this->route->getControllerClass());
+		$this->assertStringEndsWith('other-controllers/foo/', $this->route->getControllerDir());
+		$this->assertEquals('foo/bar/', $this->route->getViewDir());
+		$this->assertEquals('', $this->route->getAction());
+
+		$this->route = new ControllerRoute;
+		$this->route->setRoute('foo/missing');
+		$this->assertEquals('IndexController', $this->route->getControllerClass());
+		$this->assertStringEndsWith('other-controllers/foo/', $this->route->getControllerDir(), 'It should use the deepest matching directory with an IndexController');
+		$this->assertEquals('foo/', $this->route->getViewDir());
+		$this->assertEquals('missing', $this->route->getAction());
 	}
 
 	/**

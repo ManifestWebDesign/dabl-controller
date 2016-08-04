@@ -109,6 +109,13 @@ class Controller extends ArrayObject {
 	}
 
 	/**
+	 * @return array
+	 */
+	public static function clearDirectories() {
+		self::$directories = array();
+	}
+
+	/**
 	 * @param string|ControllerRoute $route
 	 * @param string $headers ControllerRoute construct arg.  Use only if $route is a string.
 	 * @param string $request_params ControllerRoute construct arg.  Use only if $route is a string.
